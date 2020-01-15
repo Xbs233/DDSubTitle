@@ -1,5 +1,7 @@
 package top.bilibililike.subtitle;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -22,7 +24,7 @@ public class SocketDataThread implements Runnable {
         client = new GetInfo();
     }
 
-    public void bind(DanmakuCallBack callBack){
+    public void bind(DanmakuCallBack callBack) {
         this.callBack = callBack;
     }
 
@@ -71,6 +73,7 @@ public class SocketDataThread implements Runnable {
                 }
             }
         }
+
         private void analyzeData(byte[] data) {
 
             int dataLength = data.length;
@@ -98,21 +101,25 @@ public class SocketDataThread implements Runnable {
                             byte[] msgBody = new byte[msgBodyLength];
                             if (inputStream.read(msgBody) == msgBodyLength) {
                                 String jsonStr = new String(msgBody, "utf-8");
-                                System.out.println(jsonStr);
+                                //System.out.println(jsonStr);
                                 JSONObject jsonObject = new JSONObject(jsonStr);
                                 String cmd = (String) jsonObject.get("cmd");
-                                if (cmd.equals("DANMU_MSG")){
+                                if (cmd.equals("DANMU_MSG")) {
                                     JSONArray list = jsonObject.getJSONArray("info");
                                     String danMuData = list.getString(1);
-                                    System.out.println("弹幕消息 = " + danMuData);
-                                    if (danMuData.startsWith("[") || danMuData.startsWith("【")) {
-                                        if (danMuData.endsWith("]") || danMuData.endsWith("】")) {
-                                            StringBuilder builder = new StringBuilder(danMuData);
+                                    //System.out.println("弹幕消息 = " + danMuData);
+                                    if (danMuData.matches("(.*)【(.*)】|(.*)【(.*)")) {
+                                        StringBuilder builder = new StringBuilder(danMuData);
+                                        if (danMuData.startsWith("[") || danMuData.startsWith("【")) {
                                             builder.deleteCharAt(0);
-                                            builder.deleteCharAt(builder.length()-1);
-                                            callBack.onShow(builder.toString());
                                         }
+                                        if (danMuData.endsWith("]") || danMuData.endsWith("】")){
+                                            builder.deleteCharAt(builder.length() - 1);
+                                        }
+                                        callBack.onShow(builder.toString());
+                                        Log.d("Subtitle",builder.toString());
                                     }
+
                                 }
                             }
                         }

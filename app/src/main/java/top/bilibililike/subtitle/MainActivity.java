@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,12 +22,7 @@ import android.widget.Toast;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import top.bilibililike.subtitle.utils.ConfigurationChangedListener;
 
 
@@ -41,20 +37,21 @@ public class MainActivity extends AppCompatActivity implements DanmakuCallBack, 
     WindowManager windowManager;
 
     //   bilibili://live/14917277
-
+    //面包狗 21421141  aqua 14917277  星街190577 coco21752686  高槻律947447
+    private static final String ROOMID = "14917277";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textView = findViewById(R.id.text);
-        textView.setOnClickListener( v -> {
+        textView.setOnClickListener(v -> {
             Intent intent = null;
             try {
-                intent = Intent.parseUri("bilibili://live/14917277",Intent.URI_INTENT_SCHEME);
+                intent = Intent.parseUri("bilibili://live/" + ROOMID, Intent.URI_INTENT_SCHEME);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
-                Toast.makeText(getApplicationContext(),"应用未安装",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "应用未安装", Toast.LENGTH_SHORT).show();
             }
             startActivity(intent);
         });
@@ -62,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements DanmakuCallBack, 
         showWindow();
         ConfigutionReceiver receiver = new ConfigutionReceiver();
         IntentFilter filter = new IntentFilter("android.intent.action.CONFIGURATION_CHANGED");
-        registerReceiver(receiver,filter);
+        registerReceiver(receiver, filter);
         receiver.bindListener(this);
 
 
@@ -73,38 +70,15 @@ public class MainActivity extends AppCompatActivity implements DanmakuCallBack, 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (subtitleView instanceof SubTitleView){
+                if (subtitleView instanceof SubTitleView) {
                     ((SubTitleView) subtitleView).addSubtitle(str);
                 }
             }
         });
     }
 
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        /*windowManager.removeViewImmediate(subtitleView);
 
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        } else {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
-        }
-
-        layoutParams.verticalMargin = 100;
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        layoutParams.width = 1800;
-        layoutParams.height = 160;
-        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-        layoutParams.y = windowManager.getDefaultDisplay().getHeight() / 10 * 9;
-        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        layoutParams.alpha = 0.8f;
-        windowManager.addView(subtitleView, layoutParams);*/
-
-    }
-
-    private void showWindow(){
+    private void showWindow() {
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         subtitleView = LayoutInflater.from(this).inflate(R.layout.layout_subtitle_view, null, false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -112,58 +86,98 @@ public class MainActivity extends AppCompatActivity implements DanmakuCallBack, 
         } else {
             layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
         }
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        layoutParams.width = 1800;
-        layoutParams.height = 160;
-        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-        layoutParams.y = windowManager.getDefaultDisplay().getHeight() / 10 * 9;
-        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        if (windowManager == null){
+            windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        }
+        int height = windowManager.getDefaultDisplay().getHeight();
+        int width = windowManager.getDefaultDisplay().getWidth();
+        layoutParams.height = (int) (height/12);
+        layoutParams.width = width;
         layoutParams.alpha = 0.8f;
-        layoutParams.verticalMargin = 100;
+        if (width > height){
+            layoutParams.width = layoutParams.width ^ layoutParams.height;
+            layoutParams.height = layoutParams.width ^ layoutParams.height;
+            layoutParams.width =    layoutParams.width ^ layoutParams.height;
+        }
+        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        layoutParams.y = windowManager.getDefaultDisplay().getHeight() / 5 * 4;
         windowManager.addView(subtitleView, layoutParams);
+
+
+
     }
 
-    private void linkStart(){
+    private void linkStart() {
         SocketDataThread dataThread = new SocketDataThread();
         dataThread.bind(this);
-        //面包狗 21421141  aqua 14917277  星街190577
-        dataThread.start("14917277", false);
+
+        dataThread.start(ROOMID, false);
         executorService.execute(dataThread);
     }
 
     @Override
     public void configurationChanged(int angle) {
-        Log.d(TAG,"旋转角度："+angle);
+        Log.d(TAG, "旋转角度：" + angle);
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        } else {
+            layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
+        }
+        if (windowManager == null){
+            windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        }
+        windowManager.removeViewImmediate(subtitleView);
+        int height = windowManager.getDefaultDisplay().getHeight();
+        int width = windowManager.getDefaultDisplay().getWidth();
+        switch (angle) {
+            default:
+            case 0:
+            case 180:
+
+                layoutParams.height = (int) (height/12);
+                layoutParams.width = width;
+                if (width > height){
+                    //异或存值交换
+                    Log.d(TAG,"0度交换前宽度 = " + layoutParams.width + "\n高度 = " + layoutParams.height);
+                    layoutParams.width = layoutParams.width ^ layoutParams.height;
+                    layoutParams.height = layoutParams.width ^ layoutParams.height;
+                    layoutParams.width =    layoutParams.width ^ layoutParams.height;
+                    Log.d(TAG,"0度交换后宽度 = " + layoutParams.width + "\n高度 = " + layoutParams.height);
+                }else {
+                    Log.d(TAG,"0度未交换宽度 = " + layoutParams.width + "\n高度 = " + layoutParams.height);
+                }
+                layoutParams.y = windowManager.getDefaultDisplay().getHeight() / 5 * 4;
+                break;
+            case 90:
+            case 270:
+                layoutParams.height = (int) (height/12);
+                layoutParams.width = height;
+                if (width > height){
+                    //异或存值交换
+                    Log.d(TAG,"90度交换前宽度 = " + layoutParams.width + "\n高度 = " + layoutParams.height);
+                    layoutParams.width = layoutParams.width ^ layoutParams.height;
+                    layoutParams.height = layoutParams.width ^ layoutParams.height;
+                    layoutParams.width =    layoutParams.width ^ layoutParams.height;
+                    Log.d(TAG,"90度交换后宽度 = " + layoutParams.width + "\n高度 = " + layoutParams.height);
+                }else {
+                    Log.d(TAG,"90度未交换宽度 = " + layoutParams.width + "\n高度 = " + layoutParams.height);
+                }
+                layoutParams.y = height / 7 * 6;
+
+                break;
+
+        }
+        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
+
+        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        layoutParams.alpha = 0.8f;
+        Log.d(TAG,"height = " + windowManager.getDefaultDisplay().getHeight() + "\nwidth = " + windowManager.getDefaultDisplay().getWidth());
+        windowManager.addView(subtitleView, layoutParams);
+
+
+
     }
 
-    //跳转页面的方法
-    private void launchapp(Context context) {
-        //判断当前手机是否有要跳入的app
-        if (isAppInstalled(context,APP_PACKAGE_NAME)){
-            //如果有根据包名跳转
-            context.startActivity(context.getPackageManager().getLaunchIntentForPackage(APP_PACKAGE_NAME));
-        }else{
-            //如果没有，走进入系统商店找到这款APP，提示你去下载这款APP的程序
-            goToMarket(context, APP_PACKAGE_NAME);
-        }
-    }
-    //这里是进入应用商店，下载指定APP的方法。
-    private void goToMarket(Context context, String packageName) {
-        Uri uri = Uri.parse("market://details?id=" + packageName);
-        Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
-        try {
-            context.startActivity(goToMarket);
-        } catch (Exception e) {
-        }
-    }
-    //这里是判断APP中是否有相应APP的方法
-    private boolean isAppInstalled(Context context, String packageName) {
-        try {
-            context.getPackageManager().getPackageInfo(packageName,0);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+
 }
