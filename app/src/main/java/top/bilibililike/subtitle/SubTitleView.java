@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import top.bilibililike.subtitle.utils.Utils;
+
 
 /**
  * @author Xbs
@@ -64,18 +66,8 @@ public class SubTitleView extends View {
         super.onDraw(canvas);
         //清空canvas
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-
         float subWidth = (float) ((sumWidth - Math.pow(newSubTitleStr.length() * Utils.sp2px(firstTextSize),0.5) )/2);
         float sub2Width = (float) ((sumWidth - Math.pow(newSubTitleStr.length() * Utils.sp2px(secondTextSize),0.5) )/2);
-        //画背景矩形
-/*        rectF.left = subWidth;
-        rectF.right = (float) (subWidth + Math.pow(newSubTitleStr.length() * Utils.sp2px(firstTextSize),0.5));
-        rectF.bottom = Utils.sp2px(firstTextSize);
-        canvas.drawRect(rectF,backgroundPaint);
-        rectF.left = sub2Width;
-        rectF.right = (float) (sub2Width + Math.pow(oldSubTitleStr.length() * Utils.sp2px(secondTextSize),0.5));
-        rectF.top +=  rectF.bottom;
-        rectF.bottom = Utils.sp2px(firstTextSize+secondTextSize+textMarging);*/
         canvas.drawRect(rectF,backgroundPaint);
         //画字幕
         canvas.drawText(newSubTitleStr.toString(),subWidth,Utils.sp2px(firstTextSize),firstTextPaint);
@@ -89,7 +81,6 @@ public class SubTitleView extends View {
         rectF.left = left;
         rectF.right = right;
         rectF.left = left;
-        Log.d(TAG,rectF.top+" "+rectF.left);
         super.onLayout(changed, left, top, right, bottom);
     }
 

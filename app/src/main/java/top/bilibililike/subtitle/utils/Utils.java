@@ -1,4 +1,4 @@
-package top.bilibililike.subtitle;
+package top.bilibililike.subtitle.utils;
 
 import android.content.res.Resources;
 import android.util.DisplayMetrics;

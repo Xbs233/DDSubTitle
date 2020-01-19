@@ -1,4 +1,4 @@
-package top.bilibililike.subtitle;
+package top.bilibililike.subtitle.WebSocket;
 
 import android.util.Log;
 
@@ -8,19 +8,16 @@ import org.json.JSONObject;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.net.Socket;
-import java.util.List;
 
 public class SocketDataThread implements Runnable {
     Socket socket;
     String roomId;
-    boolean isReConn;
     GetInfo client;
     private boolean keepRunning = true;
     private DanmakuCallBack callBack;
 
-    public void start(String roomId, boolean isConnect) {
+    public void start(String roomId) {
         this.roomId = roomId;
-        isReConn = isConnect;
         client = new GetInfo();
     }
 

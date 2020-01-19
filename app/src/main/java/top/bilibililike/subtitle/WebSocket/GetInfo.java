@@ -1,4 +1,4 @@
-package top.bilibililike.subtitle;
+package top.bilibililike.subtitle.WebSocket;
 
 import java.io.DataOutputStream;
 import java.net.InetSocketAddress;
@@ -75,12 +75,4 @@ public class GetInfo {
         return socket;
     }
 
-    public void disconnect(Socket socket){
-        try {
-            heartBeattimer.cancel();
-            socket.close();
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
-    }
 }

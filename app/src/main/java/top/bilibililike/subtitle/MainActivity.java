@@ -1,14 +1,9 @@
 package top.bilibililike.subtitle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
-import android.graphics.Point;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +18,8 @@ import java.net.URISyntaxException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import top.bilibililike.subtitle.WebSocket.DanmakuCallBack;
+import top.bilibililike.subtitle.WebSocket.SocketDataThread;
 import top.bilibililike.subtitle.utils.ConfigurationChangedListener;
 
 
@@ -37,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements DanmakuCallBack, 
     WindowManager windowManager;
 
     //   bilibili://live/14917277
-    //面包狗 21421141  aqua 14917277  星街190577 coco21752686  高槻律947447
+    //面包狗 21421141  aqua 14917277  星街 190577 coco 21752686  高槻律 947447
     private static final String ROOMID = "14917277";
 
     @Override
