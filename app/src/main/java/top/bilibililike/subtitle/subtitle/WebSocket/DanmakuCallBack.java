@@ -1,4 +1,4 @@
-package top.bilibililike.subtitle.WebSocket;
+package top.bilibililike.subtitle.subtitle.WebSocket;
 
 public interface DanmakuCallBack {
     /**

@@ -1,179 +1,147 @@
 package top.bilibililike.subtitle;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Build;
+import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.TextView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.List;
 
-import top.bilibililike.subtitle.WebSocket.DanmakuCallBack;
-import top.bilibililike.subtitle.WebSocket.SocketDataThread;
-import top.bilibililike.subtitle.utils.ConfigurationChangedListener;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import top.bilibililike.subtitle.roomInfo.RepoBean;
+import top.bilibililike.subtitle.roomInfo.RoomInfoAdapter;
+import top.bilibililike.subtitle.roomInfo.RoomRepo;
+import top.bilibililike.subtitle.subtitle.SubtitleService;
+import top.bilibililike.subtitle.utils.ToastUtil;
 
 
-public class MainActivity extends AppCompatActivity implements DanmakuCallBack, ConfigurationChangedListener {
+public class MainActivity extends AppCompatActivity implements RoomInfoAdapter.ClickCallback {
     private static final String TAG = MainActivity.class.getSimpleName();
-    ExecutorService executorService = Executors.newFixedThreadPool(2);
-    TextView textView;
+    private static final int REQUEST_CODE = 1;
+    @BindView(R.id.recyclerView)
+    RecyclerView recyclerView;
 
-    private static final String APP_PACKAGE_NAME = "tv.danmaku.bili";
+    private SubtitleService subtitleService;
+    private ServiceConnection mConnection = new ServiceConnection() {
 
-    View subtitleView;
-    WindowManager windowManager;
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            subtitleService = ((SubtitleService.LocalBinder)service).getService();
+            Log.d(TAG,"suntitleService赋值了");
+        }
 
-    //   bilibili://live/14917277
-    //面包狗 21421141  aqua 14917277  星街 190577 coco 21752686  高槻律 947447
-    private static final String ROOMID = "14917277";
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        textView = findViewById(R.id.text);
-        textView.setOnClickListener(v -> {
-            Intent intent = null;
-            try {
-                intent = Intent.parseUri("bilibili://live/" + ROOMID, Intent.URI_INTENT_SCHEME);
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-                Toast.makeText(getApplicationContext(), "应用未安装", Toast.LENGTH_SHORT).show();
-            }
-            startActivity(intent);
-        });
-        linkStart();
-        showWindow();
-        ConfigutionReceiver receiver = new ConfigutionReceiver();
-        IntentFilter filter = new IntentFilter("android.intent.action.CONFIGURATION_CHANGED");
-        registerReceiver(receiver, filter);
-        receiver.bindListener(this);
+        ButterKnife.bind(this);
 
-
-    }
-
-    @Override
-    public void onShow(final String str) {
-        runOnUiThread(new Runnable() {
+        if (!commonRomPermissionCheck()){
+            requestAlertWindowPermission();
+        }
+        GridLayoutManager layoutManager = new GridLayoutManager(this,2);
+        RoomInfoAdapter adapter = new RoomInfoAdapter(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
+        Intent intent = new Intent(this, SubtitleService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        RoomRepo.getLivers(new RoomRepo.LiverCallback() {
             @Override
-            public void run() {
-                if (subtitleView instanceof SubTitleView) {
-                    ((SubTitleView) subtitleView).addSubtitle(str);
-                }
+            public void onSuccess(List<RepoBean.DataBean> liverList) {
+                adapter.refreshData(liverList);
+                Log.d(TAG,liverList.size()+"");
+            }
+
+            @Override
+            public void onStartLoading() {
+                //todo show dialog
+                Log.d(TAG,"startLoading");
+            }
+
+            @Override
+            public void onError(String reason) {
+                ToastUtil.show(reason);
+                Log.d(TAG,reason);
             }
         });
-    }
-
-
-    private void showWindow() {
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        subtitleView = LayoutInflater.from(this).inflate(R.layout.layout_subtitle_view, null, false);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        } else {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
-        }
-        if (windowManager == null){
-            windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        }
-        int height = windowManager.getDefaultDisplay().getHeight();
-        int width = windowManager.getDefaultDisplay().getWidth();
-        layoutParams.height = (int) (height/12);
-        layoutParams.width = width;
-        layoutParams.alpha = 0.8f;
-        if (width > height){
-            layoutParams.width = layoutParams.width ^ layoutParams.height;
-            layoutParams.height = layoutParams.width ^ layoutParams.height;
-            layoutParams.width =    layoutParams.width ^ layoutParams.height;
-        }
-        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        layoutParams.y = windowManager.getDefaultDisplay().getHeight() / 5 * 4;
-        windowManager.addView(subtitleView, layoutParams);
-
-
 
     }
 
-    private void linkStart() {
-        SocketDataThread dataThread = new SocketDataThread();
-        dataThread.bind(this);
 
-        dataThread.start(ROOMID, false);
-        executorService.execute(dataThread);
-    }
 
     @Override
-    public void configurationChanged(int angle) {
-        Log.d(TAG, "旋转角度：" + angle);
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        } else {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
+    public void onClicked(String roomId) {
+        subtitleService.linkStart("14917277");
+        Intent intent = null;
+        try {
+            intent = Intent.parseUri("bilibili://live/" + roomId, Intent.URI_INTENT_SCHEME);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "应用未安装", Toast.LENGTH_SHORT).show();
         }
-        if (windowManager == null){
-            windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        startActivity(intent);
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(mConnection);
+    }
+
+
+    //判断权限
+    private boolean commonRomPermissionCheck() {
+        Boolean result = true;
+        try {
+            Class clazz = Settings.class;
+            Method canDrawOverlays = clazz.getDeclaredMethod("canDrawOverlays", Context.class);
+            result = (Boolean) canDrawOverlays.invoke(null, this);
+        } catch (Exception e) {
+            Log.e(TAG, Log.getStackTraceString(e));
         }
-        windowManager.removeViewImmediate(subtitleView);
-        int height = windowManager.getDefaultDisplay().getHeight();
-        int width = windowManager.getDefaultDisplay().getWidth();
-        switch (angle) {
-            default:
-            case 0:
-            case 180:
+        return result;
+    }
 
-                layoutParams.height = (int) (height/12);
-                layoutParams.width = width;
-                if (width > height){
-                    //异或存值交换
-                    Log.d(TAG,"0度交换前宽度 = " + layoutParams.width + "\n高度 = " + layoutParams.height);
-                    layoutParams.width = layoutParams.width ^ layoutParams.height;
-                    layoutParams.height = layoutParams.width ^ layoutParams.height;
-                    layoutParams.width =    layoutParams.width ^ layoutParams.height;
-                    Log.d(TAG,"0度交换后宽度 = " + layoutParams.width + "\n高度 = " + layoutParams.height);
-                }else {
-                    Log.d(TAG,"0度未交换宽度 = " + layoutParams.width + "\n高度 = " + layoutParams.height);
-                }
-                layoutParams.y = windowManager.getDefaultDisplay().getHeight() / 5 * 4;
-                break;
-            case 90:
-            case 270:
-                layoutParams.height = (int) (height/12);
-                layoutParams.width = height;
-                if (width > height){
-                    //异或存值交换
-                    Log.d(TAG,"90度交换前宽度 = " + layoutParams.width + "\n高度 = " + layoutParams.height);
-                    layoutParams.width = layoutParams.width ^ layoutParams.height;
-                    layoutParams.height = layoutParams.width ^ layoutParams.height;
-                    layoutParams.width =    layoutParams.width ^ layoutParams.height;
-                    Log.d(TAG,"90度交换后宽度 = " + layoutParams.width + "\n高度 = " + layoutParams.height);
-                }else {
-                    Log.d(TAG,"90度未交换宽度 = " + layoutParams.width + "\n高度 = " + layoutParams.height);
-                }
-                layoutParams.y = height / 7 * 6;
+    //申请权限
+    private void requestAlertWindowPermission() {
+        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+        intent.setData(Uri.parse("package:" + getPackageName()));
+        startActivityForResult(intent, REQUEST_CODE);
+    }
 
-                break;
-
+    //处理回调
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE) {
+            if (!Settings.canDrawOverlays(this)) {
+                ToastUtil.show("请通过悬浮窗权限申请！");
+                requestAlertWindowPermission();
+            }
         }
-        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-
-        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        layoutParams.alpha = 0.8f;
-        Log.d(TAG,"height = " + windowManager.getDefaultDisplay().getHeight() + "\nwidth = " + windowManager.getDefaultDisplay().getWidth());
-        windowManager.addView(subtitleView, layoutParams);
-
-
-
     }
 
 

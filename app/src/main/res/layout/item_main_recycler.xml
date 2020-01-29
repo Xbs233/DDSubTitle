@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/qb_px_180"
+    android:orientation="vertical"
+    android:layout_marginStart="@dimen/qb_px_8"
+    android:layout_marginTop="@dimen/qb_px_10"
+    android:layout_marginBottom="@dimen/qb_px_2"
+    app:cardCornerRadius="@dimen/qb_px_5"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <ImageView
+            android:id="@+id/cover_img"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/qb_px_110"
+            android:layout_alignParentTop="true"
+            android:scaleType="fitXY"
+            tools:background="#66ccff"
+            />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/qb_px_50"
+            android:layout_alignBottom="@+id/cover_img">
+
+            <TextView
+                android:id="@+id/tv_plays"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="@dimen/qb_px_5"
+                android:drawableStart="@mipmap/ic_play_nums"
+                android:text="114万"
+                android:drawablePadding="@dimen/qb_px_2"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_comments"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="@dimen/qb_px_5"
+                android:layout_toRightOf="@id/tv_plays"
+                android:drawableLeft="@mipmap/ic_danmuku_nums"
+                android:drawablePadding="@dimen/qb_px_2"
+                android:text="7216万"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_length"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="@dimen/qb_px_5"
+                android:text="5:33"
+                android:textColor="#ffffff"
+                android:textSize="12sp" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/cover_img"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:paddingStart="@dimen/qb_px_10"
+            android:paddingTop="@dimen/qb_px_3"
+            android:paddingEnd="@dimen/qb_px_10"
+            tools:text="一般有情夏色祭一般有情夏色祭一般有情夏色祭一般有情夏色祭一般有情夏色祭一般有情夏色祭一般有情夏色祭一般有情夏色"
+            android:textColor="#000000"
+            android:textSize="14sp" />
+
+        <TextView
+
+            android:layout_alignParentBottom="true"
+            android:paddingBottom="@dimen/qb_px_5"
+            android:paddingStart="@dimen/qb_px_10"
+            android:id="@+id/tv_up_nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorAccent"
+            tools:text="夏色祭Official"
+            android:textSize="10sp"
+            />
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

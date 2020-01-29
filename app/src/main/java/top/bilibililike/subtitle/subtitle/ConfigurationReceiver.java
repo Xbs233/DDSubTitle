@@ -1,14 +1,14 @@
-package top.bilibililike.subtitle;
+package top.bilibililike.subtitle.subtitle;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.view.WindowManager;
 
-import top.bilibililike.subtitle.utils.ConfigurationChangedListener;
-
-public class ConfigutionReceiver extends BroadcastReceiver {
+/**
+ * @author Xbs
+ */
+public class ConfigurationReceiver extends BroadcastReceiver {
     ConfigurationChangedListener listener;
 
     @Override

@@ -1,4 +1,4 @@
-package top.bilibililike.subtitle.WebSocket;
+package top.bilibililike.subtitle.subtitle.WebSocket;
 
 import android.util.Log;
 
@@ -10,9 +10,9 @@ import java.io.DataInputStream;
 import java.net.Socket;
 
 public class SocketDataThread implements Runnable {
-    Socket socket;
-    String roomId;
-    GetInfo client;
+    private Socket socket;
+    private String roomId;
+    private GetInfo client;
     private boolean keepRunning = true;
     private DanmakuCallBack callBack;
 
@@ -46,7 +46,7 @@ public class SocketDataThread implements Runnable {
         public void run() {
             super.run();
             if (socket != null) {
-                int bufferSize = 10 * 1024;
+                int bufferSize = 100 * 1024;
                 try {
                     bufferSize = socket.getReceiveBufferSize();
                     System.out.println("连接成功" + "真实直播间ID：" + roomId);
@@ -104,18 +104,19 @@ public class SocketDataThread implements Runnable {
                                 if (cmd.equals("DANMU_MSG")) {
                                     JSONArray list = jsonObject.getJSONArray("info");
                                     String danMuData = list.getString(1);
-                                    //System.out.println("弹幕消息 = " + danMuData);
-                                    if (danMuData.matches("(.*)【(.*)】|(.*)【(.*)")) {
+                                    System.out.println("弹幕消息 = " + danMuData);
+                                    callBack.onShow(danMuData);
+                                    /*if (danMuData.matches("(.*)【(.*)】(.*)|(.*)【(.*)")) {
                                         StringBuilder builder = new StringBuilder(danMuData);
-                                        if (danMuData.startsWith("[") || danMuData.startsWith("【")) {
+                                        if (danMuData.startsWith("【")) {
                                             builder.deleteCharAt(0);
                                         }
-                                        if (danMuData.endsWith("]") || danMuData.endsWith("】")){
+                                        if (danMuData.endsWith("】")){
                                             builder.deleteCharAt(builder.length() - 1);
                                         }
                                         callBack.onShow(builder.toString());
                                         Log.d("Subtitle",builder.toString());
-                                    }
+                                    }*/
 
                                 }
                             }
@@ -134,5 +135,11 @@ public class SocketDataThread implements Runnable {
                 }
             }
         }
+    }
+
+    public void stop(){
+        keepRunning = false;
+        socket = null;
+
     }
 }

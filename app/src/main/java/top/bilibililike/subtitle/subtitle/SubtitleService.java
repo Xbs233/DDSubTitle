@@ -1,4 +1,4 @@
-package top.bilibililike.subtitle;
+package top.bilibililike.subtitle.subtitle;
 
 import android.app.Service;
 import android.content.Intent;
@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
-import android.util.AndroidException;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,49 +21,88 @@ import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import top.bilibililike.subtitle.WebSocket.DanmakuCallBack;
-import top.bilibililike.subtitle.WebSocket.SocketDataThread;
-import top.bilibililike.subtitle.danmuSocket.DanmakuCallBack;
-import top.bilibililike.subtitle.danmuSocket.SocketDataThread;
+import top.bilibililike.subtitle.R;
+import top.bilibililike.subtitle.subtitle.WebSocket.DanmakuCallBack;
+import top.bilibililike.subtitle.subtitle.WebSocket.SocketDataThread;
 
 /**
  * @author Xbs
  */
-public class SubtitleService extends Service implements DanmakuCallBack {
+public class SubtitleService extends Service implements DanmakuCallBack,ConfigurationChangedListener {
     ExecutorService executorService = Executors.newFixedThreadPool(2);
-    View subtitleView;
+    SubTitleView subtitleView;
     WindowManager windowManager;
-
+    SocketDataThread dataThread;
 
 
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        ConfigurationReceiver receiver = new ConfigurationReceiver();
+        receiver.bindListener(this);
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        SocketDataThread dataThread = new SocketDataThread();
+        subtitleView = (SubTitleView) LayoutInflater.from(this).inflate(R.layout.layout_subtitle_view, null, false);
+        dataThread = new SocketDataThread();
         dataThread.bind(this);
+        return new LocalBinder();
+    }
+
+    public void linkStart(String roomId){
+
         //面包狗 21421141  aqua 14917277
-        dataThread.start("14917277");
+        dataThread.start(roomId);
         executorService.execute(dataThread);
+        addVerticalLayout();
+    }
+
+    /**
+     * 横向布局 对应屏幕90度 270度
+     */
+    private void addHorizontalLayout(){
+        if (subtitleView.isShown()){
+            windowManager.removeViewImmediate(subtitleView);
+        }
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        subtitleView = LayoutInflater.from(this).inflate(R.layout.layout_subtitle, null, false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         } else {
             layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
         }
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        layoutParams.width = 1800;
+        layoutParams.width = windowManager.getDefaultDisplay().getWidth();
         layoutParams.height = 160;
         layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-        layoutParams.y = windowManager.getDefaultDisplay().getHeight() / 10 * 9;
+        layoutParams.y = windowManager.getDefaultDisplay().getHeight() - layoutParams.height;
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         layoutParams.alpha = 0.8f;
-        layoutParams.verticalMargin = 100;
         windowManager.addView(subtitleView, layoutParams);
-        return new LocalBinder();
     }
+
+    /**
+     * 竖直布局，对应屏幕0度 180度
+     */
+    private void addVerticalLayout(){
+        if (subtitleView.isShown()){
+            windowManager.removeViewImmediate(subtitleView);
+        }
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        } else {
+            layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
+        }
+        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
+        layoutParams.height = 160;
+        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
+        layoutParams.y = windowManager.getDefaultDisplay().getHeight() - layoutParams.height;
+        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        layoutParams.alpha = 0.8f;
+        windowManager.addView(subtitleView, layoutParams);
+    }
+
+
 
     @Override
     public void onShow(String str) {
@@ -79,12 +117,7 @@ public class SubtitleService extends Service implements DanmakuCallBack {
 
                     @Override
                     public void onNext(String s) {
-                        TextView subtitle1 = subtitleView.findViewById(R.id.tv_sub1);
-                        TextView subtitle2 = subtitleView.findViewById(R.id.tv_sub2);
-                        if (subtitle1 != null && subtitle2 != null) {
-                            subtitle2.setText(subtitle1.getText().toString());
-                            subtitle1.setText(str.substring(1, str.length() - 1));
-                        }
+                       subtitleView.addSubtitle(str);
                     }
 
                     @Override
@@ -97,16 +130,6 @@ public class SubtitleService extends Service implements DanmakuCallBack {
 
                     }
                 });
-        /*TextView subtitle1 = subtitleView.findViewById(R.id.tv_sub1);
-        TextView subtitle2 = subtitleView.findViewById(R.id.tv_sub2);
-        if (subtitle1 != null && subtitle2 != null) {
-            subtitle2.setText(subtitle1.getText().toString());
-            subtitle1.setText(str.substring(1, str.length() - 1));
-        }*/
-
-        /*Intent intent = new Intent();
-        intent.putExtra("danmu",str.substring(1, str.length() - 1));
-        sendBroadcast(intent);*/
     }
 
 
@@ -115,6 +138,16 @@ public class SubtitleService extends Service implements DanmakuCallBack {
             return SubtitleService.this;
         }
     }
+
+    @Override
+    public void configurationChanged(int angle) {
+        if (angle == 90 || angle == 270){
+            addVerticalLayout();
+        }else if (angle == 180 || angle == 0 || angle == 360){
+            addHorizontalLayout();
+        }
+    }
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);

@@ -1,4 +1,4 @@
-package top.bilibililike.subtitle;
+package top.bilibililike.subtitle.subtitle;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -8,7 +8,6 @@ import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import top.bilibililike.subtitle.utils.Utils;
@@ -20,22 +19,22 @@ import top.bilibililike.subtitle.utils.Utils;
  */
 public class SubTitleView extends View {
     private static final String TAG = SubTitleView.class.getSimpleName();
-    TextPaint firstTextPaint;
-    TextPaint secondTextPaint;
+    private TextPaint firstTextPaint;
+    private TextPaint secondTextPaint;
 
-    Paint backgroundPaint;
-    StringBuilder newSubTitleStr;
-    StringBuilder oldSubTitleStr;
+    private Paint backgroundPaint;
+    private StringBuilder newSubTitleStr;
+    private StringBuilder oldSubTitleStr;
 
-    int sumWidth ;
-    int sumHeight;
+    private int sumWidth ;
+    private int sumHeight;
 
-    int firstTextSize = 24;
-    int secondTextSize = 18;
+    private int firstTextSize = 24;
+    private int secondTextSize = 18;
 
-    float alpha = 0.7f;
+    private float alpha = 0.7f;
 
-    int textMarging = 5;
+    private int textMarging = 5;
 
     RectF rectF;
 

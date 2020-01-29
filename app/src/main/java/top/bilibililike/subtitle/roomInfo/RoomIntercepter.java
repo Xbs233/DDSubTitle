@@ -59,7 +59,7 @@ public class RoomIntercepter implements Interceptor {
             }
         }
         signBuilder.append(ApiRepo.APP_SECRET);
-        Log.d("GetInterceptor sign", signBuilder.toString());
+        //Log.d("GetInterceptor sign", signBuilder.toString());
         builder.addQueryParameter("sign", MD5Util.getMD5(signBuilder.toString()));
         httpUrl = builder.build();
         Log.d("GetInterceptor", httpUrl.toString());
@@ -67,6 +67,7 @@ public class RoomIntercepter implements Interceptor {
 
 
         return chain.proceed(request);
+
     }
 
     public void replaceParam(HashMap<String, String> param) {
@@ -76,7 +77,10 @@ public class RoomIntercepter implements Interceptor {
             paramMap.clear();
             paramMap.putAll(ApiRepo.getParams());
         }
-        paramMap.putAll(param);
+        if (param != null){
+            paramMap.putAll(param);
+        }
+
     }
 
     public void replaceRoom(String roomId) {

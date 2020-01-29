@@ -1,4 +1,4 @@
-package top.bilibililike.subtitle.utils;
+package top.bilibililike.subtitle.subtitle;
 
 
 /**

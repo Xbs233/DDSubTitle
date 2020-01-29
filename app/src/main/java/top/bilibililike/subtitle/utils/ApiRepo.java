@@ -17,6 +17,7 @@ public class ApiRepo {
     private static final String APP_KEY = "1d8b6e7d45233436";
     private static final String BUILD = "5410000";
     private static final String CHANNEL = "bili";
+    private static final String DEVICE = "android";
     private static final String MOBI_APP = "android";
     private static final String PLATFORM = "android";
     private static final String STATISTICS = "{\"appId\":1,\"PLATFORM\":3,\"version\":\"5.41.0\",\"abtest\":\"\"}";
@@ -32,6 +33,7 @@ public class ApiRepo {
         params.put("actionKey",ACTION_KEY);
         params.put("build",BUILD);
         params.put("channel",CHANNEL);
+        params.put("device",DEVICE);
         params.put("mobi_app",MOBI_APP);
         params.put("platform",PLATFORM);
         params.put("statistics",STATISTICS);
