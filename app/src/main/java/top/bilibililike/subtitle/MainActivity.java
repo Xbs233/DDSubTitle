@@ -1,5 +1,6 @@
 package top.bilibililike.subtitle;
 
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements RoomInfoAdapter.C
 
     @Override
     public void onClicked(String roomId) {
-        subtitleService.linkStart("14917277");
+        subtitleService.linkStart(roomId);
         Intent intent = null;
         try {
             intent = Intent.parseUri("bilibili://live/" + roomId, Intent.URI_INTENT_SCHEME);
@@ -101,7 +102,15 @@ public class MainActivity extends AppCompatActivity implements RoomInfoAdapter.C
             e.printStackTrace();
             Toast.makeText(getApplicationContext(), "应用未安装", Toast.LENGTH_SHORT).show();
         }
-        startActivity(intent);
+        try {
+            startActivity(intent);
+        }catch (ActivityNotFoundException e){
+            Uri uri = Uri.parse("market://details?id=" + "tv.danmaku.bili");
+            Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+            goToMarket.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(goToMarket);
+        }
+
     }
 
 

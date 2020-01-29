@@ -2,10 +2,12 @@ package top.bilibililike.subtitle.subtitle;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +31,7 @@ import top.bilibililike.subtitle.subtitle.WebSocket.SocketDataThread;
  * @author Xbs
  */
 public class SubtitleService extends Service implements DanmakuCallBack,ConfigurationChangedListener {
+    public static final String TAG = SubtitleService.class.getSimpleName();
     ExecutorService executorService = Executors.newFixedThreadPool(2);
     SubTitleView subtitleView;
     WindowManager windowManager;
@@ -40,6 +43,9 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
     @Override
     public IBinder onBind(Intent intent) {
         ConfigurationReceiver receiver = new ConfigurationReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.intent.action.CONFIGURATION_CHANGED");
+        registerReceiver(receiver, filter);
         receiver.bindListener(this);
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         subtitleView = (SubTitleView) LayoutInflater.from(this).inflate(R.layout.layout_subtitle_view, null, false);
@@ -60,9 +66,11 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
      * 横向布局 对应屏幕90度 270度
      */
     private void addHorizontalLayout(){
+        Log.d(TAG,"view.isShown = "+subtitleView.isShown());
         if (subtitleView.isShown()){
             windowManager.removeViewImmediate(subtitleView);
         }
+        Log.d(TAG,"view.isShown = "+subtitleView.isShown());
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
@@ -71,11 +79,12 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
         }
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         layoutParams.width = windowManager.getDefaultDisplay().getWidth();
-        layoutParams.height = 160;
+        layoutParams.height = (int) (windowManager.getDefaultDisplay().getHeight() * 0.148);
         layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
         layoutParams.y = windowManager.getDefaultDisplay().getHeight() - layoutParams.height;
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         layoutParams.alpha = 0.8f;
+
         windowManager.addView(subtitleView, layoutParams);
     }
 
@@ -93,13 +102,14 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
             layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
         }
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-        layoutParams.height = 160;
+        layoutParams.width = windowManager.getDefaultDisplay().getWidth();
+        layoutParams.height = (int) (windowManager.getDefaultDisplay().getHeight() * 0.083);
         layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
         layoutParams.y = windowManager.getDefaultDisplay().getHeight() - layoutParams.height;
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         layoutParams.alpha = 0.8f;
         windowManager.addView(subtitleView, layoutParams);
+        Log.d(TAG,"0度/90度width = " + layoutParams.width + "\theight = " + layoutParams.height);
     }
 
 
@@ -141,34 +151,13 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
 
     @Override
     public void configurationChanged(int angle) {
+        Log.d(TAG,"旋转角度：" + angle);
         if (angle == 90 || angle == 270){
-            addVerticalLayout();
-        }else if (angle == 180 || angle == 0 || angle == 360){
             addHorizontalLayout();
+        }else if (angle == 180 || angle == 0 || angle == 360){
+            addVerticalLayout();
         }
+        subtitleView.invalidate();
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        windowManager.removeViewImmediate(subtitleView);
-
-        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        } else {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
-        }
-
-        layoutParams.verticalMargin = 100;
-        windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        layoutParams.width = 1800;
-        layoutParams.height = 160;
-        layoutParams.gravity = Gravity.CENTER_HORIZONTAL;
-        layoutParams.y = windowManager.getDefaultDisplay().getHeight() / 10 * 9;
-        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        layoutParams.alpha = 0.8f;
-        windowManager.addView(subtitleView, layoutParams);
-
-    }
 }

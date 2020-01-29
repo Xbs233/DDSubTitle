@@ -18,6 +18,7 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import top.bilibililike.subtitle.utils.LiverRepo;
 
 /**
  * @author Xbs
@@ -28,7 +29,10 @@ public class RoomRepo {
      * 面包狗 21421141  aqua 14917277  星街 190577 coco 21752686  peko 21560356 狗妈 21304638 心心 14275133
      *
      */
-    private static final String[] ROOM_ID = new String[]{"21421141","14917277","190577","21752686","947447","21560356","21304638","14275133"};
+    private static final String[] ROOM_ID = new String[]
+            {LiverRepo.MINATO_AQUA,LiverRepo.USADA_PEKORA,LiverRepo.URUHA_RUSHIA,LiverRepo.SUISEI,LiverRepo.MATSURI,LiverRepo.KAGURA_MEA,
+             LiverRepo.SORA,LiverRepo.KIRYUU_COCO,LiverRepo.HIMEMORI_LUNA,LiverRepo.AMANE_KANATA
+            };
 
     public static void getLivers(LiverCallback callback){
         List<RepoBean.DataBean> resultList = new ArrayList<>();
