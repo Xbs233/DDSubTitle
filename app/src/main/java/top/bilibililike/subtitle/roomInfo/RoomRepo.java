@@ -30,8 +30,10 @@ public class RoomRepo {
      *
      */
     private static final String[] ROOM_ID = new String[]
-            {LiverRepo.MINATO_AQUA,LiverRepo.USADA_PEKORA,LiverRepo.URUHA_RUSHIA,LiverRepo.SUISEI,LiverRepo.MATSURI,LiverRepo.KAGURA_MEA,
-             LiverRepo.SORA,LiverRepo.KIRYUU_COCO,LiverRepo.HIMEMORI_LUNA,LiverRepo.AMANE_KANATA
+            {LiverRepo.MINATO_AQUA,LiverRepo.USADA_PEKORA,LiverRepo.URUHA_RUSHIA,
+                    LiverRepo.SUISEI,LiverRepo.MATSURI,LiverRepo.KAGURA_MEA,
+                    LiverRepo.KIRYUU_COCO,LiverRepo.HIMEMORI_LUNA, LiverRepo.AMANE_KANATA,
+                    LiverRepo.HOLOLIVE
             };
 
     public static void getLivers(LiverCallback callback){

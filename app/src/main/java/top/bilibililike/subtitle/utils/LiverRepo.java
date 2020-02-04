@@ -7,6 +7,9 @@ public class LiverRepo {
     //大亏哥
     public static final String MINATO_AQUA = "14917277";
 
+    //Holo哥
+    public static final String HOLOLIVE = "8982686";
+
     //星街彗星
     public static final String SUISEI = "190577";
 

@@ -6,10 +6,20 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.RectF;
+import android.os.Looper;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+import top.bilibililike.subtitle.utils.ToastUtil;
 import top.bilibililike.subtitle.utils.Utils;
 
 
@@ -19,24 +29,26 @@ import top.bilibililike.subtitle.utils.Utils;
  */
 public class SubTitleView extends View {
     private static final String TAG = SubTitleView.class.getSimpleName();
-    private TextPaint firstTextPaint;
-    private TextPaint secondTextPaint;
-
-    private Paint backgroundPaint;
-    private StringBuilder newSubTitleStr;
-    private StringBuilder oldSubTitleStr;
+    final private TextPaint firstTextPaint;
+    final private TextPaint secondTextPaint;
+    private long timeFlag;
+    final private Paint backgroundPaint;
+    final private StringBuilder newSubTitleStr;
+    final private StringBuilder oldSubTitleStr;
 
     private int sumWidth ;
     private int sumHeight;
 
-    private int firstTextSize = 24;
-    private int secondTextSize = 18;
+    final private int firstTextSize = 24;
+    final private int secondTextSize = 18;
 
-    private float alpha = 0.7f;
+    final private float alpha = 0.7f;
 
-    private int textMarging = 5;
+    final private int textMarging = 5;
 
-    RectF rectF;
+    final RectF rectF;
+
+    Disposable disposable;
 
     public SubTitleView(Context context, AttributeSet attrs) {
         super(context,attrs);
@@ -56,6 +68,30 @@ public class SubTitleView extends View {
         newSubTitleStr = new StringBuilder();
         oldSubTitleStr = new StringBuilder();
         rectF = new RectF();
+
+
+
+    }
+
+    private void initTimeTask(){
+        timeFlag = System.currentTimeMillis();
+        disposable = Observable
+                .interval(1000,TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io())
+                .doOnSubscribe(s -> {
+                    Log.d(TAG,"onSubscribe");
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(aLong -> {
+                    Log.d(TAG,"onNext timeFlag = " + timeFlag);
+                    if (System.currentTimeMillis() - timeFlag > 5000){
+                        setVisibility(View.INVISIBLE);
+                        ToastUtil.show("暂无同传消息，字幕自动隐藏");
+                        disposable.dispose();
+                    }
+                })
+                .doOnError(Throwable::printStackTrace)
+                .subscribe();
     }
 
 
@@ -65,8 +101,8 @@ public class SubTitleView extends View {
         super.onDraw(canvas);
         //清空canvas
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
-        float subWidth = (float) ((sumWidth - Math.pow(newSubTitleStr.length() * Utils.sp2px(firstTextSize),0.5) )/2);
-        float sub2Width = (float) ((sumWidth - Math.pow(newSubTitleStr.length() * Utils.sp2px(secondTextSize),0.5) )/2);
+        final float subWidth = (float) ((sumWidth - Math.pow(newSubTitleStr.length() * Utils.sp2px(firstTextSize),0.5) )/2);
+        final float sub2Width = (float) ((sumWidth - Math.pow(newSubTitleStr.length() * Utils.sp2px(secondTextSize),0.5) )/2);
         canvas.drawRect(rectF,backgroundPaint);
         //画字幕
         canvas.drawText(newSubTitleStr.toString(),subWidth,Utils.sp2px(firstTextSize),firstTextPaint);
@@ -93,6 +129,12 @@ public class SubTitleView extends View {
     }
 
     public void addSubtitle(String subTitleStr){
+        timeFlag = System.currentTimeMillis();
+        setVisibility(View.VISIBLE);
+        if (disposable == null || disposable.isDisposed()){
+            disposable = null;
+            initTimeTask();
+        }
         if (oldSubTitleStr.length() != 0){
             oldSubTitleStr.setLength(0);
         }
@@ -101,7 +143,25 @@ public class SubTitleView extends View {
             newSubTitleStr.setLength(0);
         }
         newSubTitleStr.append(subTitleStr);
-
         invalidate();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        if (!disposable.isDisposed()){
+            disposable.dispose();
+            disposable = null;
+        }
+        super.onDetachedFromWindow();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        if (disposable == null || disposable.isDisposed()){
+            disposable = null;
+           initTimeTask();
+        }
+
+        super.onAttachedToWindow();
     }
 }

@@ -105,18 +105,19 @@ public class SocketDataThread implements Runnable {
                                     JSONArray list = jsonObject.getJSONArray("info");
                                     String danMuData = list.getString(1);
                                     System.out.println("弹幕消息 = " + danMuData);
-                                    callBack.onShow(danMuData);
-                                    /*if (danMuData.matches("(.*)【(.*)】(.*)|(.*)【(.*)")) {
+                                   // callBack.onShow(danMuData);
+                                    if (danMuData.matches("(.*)(【.*】)(.*)")) {
+                                        danMuData = danMuData.replaceFirst("【","").replace("】","");
                                         StringBuilder builder = new StringBuilder(danMuData);
-                                        if (danMuData.startsWith("【")) {
+                                       /* if (danMuData.startsWith("【") || danMuData.startsWith("（")) {
                                             builder.deleteCharAt(0);
                                         }
-                                        if (danMuData.endsWith("】")){
+                                        if (danMuData.endsWith("】") || danMuData.endsWith("）")){
                                             builder.deleteCharAt(builder.length() - 1);
-                                        }
+                                        }*/
                                         callBack.onShow(builder.toString());
                                         Log.d("Subtitle",builder.toString());
-                                    }*/
+                                    }
 
                                 }
                             }
@@ -140,6 +141,6 @@ public class SocketDataThread implements Runnable {
     public void stop(){
         keepRunning = false;
         socket = null;
-
+        client = null;
     }
 }

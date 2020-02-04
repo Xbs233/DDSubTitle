@@ -49,14 +49,18 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
         receiver.bindListener(this);
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         subtitleView = (SubTitleView) LayoutInflater.from(this).inflate(R.layout.layout_subtitle_view, null, false);
-        dataThread = new SocketDataThread();
-        dataThread.bind(this);
+
         return new LocalBinder();
     }
 
     public void linkStart(String roomId){
-
+        if (dataThread != null){
+            dataThread.stop();
+            dataThread = null;
+        }
         //面包狗 21421141  aqua 14917277
+        dataThread = new SocketDataThread();
+        dataThread.bind(this);
         dataThread.start(roomId);
         executorService.execute(dataThread);
         addVerticalLayout();
@@ -66,11 +70,9 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
      * 横向布局 对应屏幕90度 270度
      */
     private void addHorizontalLayout(){
-        Log.d(TAG,"view.isShown = "+subtitleView.isShown());
         if (subtitleView.isShown()){
             windowManager.removeViewImmediate(subtitleView);
         }
-        Log.d(TAG,"view.isShown = "+subtitleView.isShown());
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
@@ -84,8 +86,8 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
         layoutParams.y = windowManager.getDefaultDisplay().getHeight() - layoutParams.height;
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         layoutParams.alpha = 0.8f;
-
         windowManager.addView(subtitleView, layoutParams);
+        Log.d(TAG,"90度/270度width = " + layoutParams.width + "\theight = " + layoutParams.height);
     }
 
     /**
@@ -109,7 +111,7 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         layoutParams.alpha = 0.8f;
         windowManager.addView(subtitleView, layoutParams);
-        Log.d(TAG,"0度/90度width = " + layoutParams.width + "\theight = " + layoutParams.height);
+        Log.d(TAG,"0度/180度width = " + layoutParams.width + "\theight = " + layoutParams.height);
     }
 
 
@@ -157,7 +159,6 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
         }else if (angle == 180 || angle == 0 || angle == 360){
             addVerticalLayout();
         }
-        subtitleView.invalidate();
     }
 
 }
