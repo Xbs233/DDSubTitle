@@ -84,7 +84,7 @@ public class SubTitleView extends View {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(aLong -> {
                     Log.d(TAG,"onNext timeFlag = " + timeFlag);
-                    if (System.currentTimeMillis() - timeFlag > 5000){
+                    if (System.currentTimeMillis() - timeFlag > 15000){
                         setVisibility(View.INVISIBLE);
                         ToastUtil.show("暂无同传消息，字幕自动隐藏");
                         disposable.dispose();
@@ -161,7 +161,8 @@ public class SubTitleView extends View {
             disposable = null;
            initTimeTask();
         }
-
         super.onAttachedToWindow();
     }
+
+
 }

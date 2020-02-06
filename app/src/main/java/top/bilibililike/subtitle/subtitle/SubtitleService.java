@@ -70,6 +70,9 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
      * 横向布局 对应屏幕90度 270度
      */
     private void addHorizontalLayout(){
+        if (dataThread == null){
+            return;
+        }
         if (subtitleView.isShown()){
             windowManager.removeViewImmediate(subtitleView);
         }
@@ -94,6 +97,9 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
      * 竖直布局，对应屏幕0度 180度
      */
     private void addVerticalLayout(){
+        if (dataThread == null){
+            return;
+        }
         if (subtitleView.isShown()){
             windowManager.removeViewImmediate(subtitleView);
         }
@@ -153,6 +159,7 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
 
     @Override
     public void configurationChanged(int angle) {
+        subtitleView.setVisibility(View.VISIBLE);
         Log.d(TAG,"旋转角度：" + angle);
         if (angle == 90 || angle == 270){
             addHorizontalLayout();

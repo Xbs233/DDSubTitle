@@ -20,6 +20,8 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import top.bilibililike.subtitle.utils.LiverRepo;
 
+import static top.bilibililike.subtitle.utils.LiverRepo.HOUSHOU_MARINE;
+
 /**
  * @author Xbs
  * @date 2020年1月19日14:59:27
@@ -33,7 +35,7 @@ public class RoomRepo {
             {LiverRepo.MINATO_AQUA,LiverRepo.USADA_PEKORA,LiverRepo.URUHA_RUSHIA,
                     LiverRepo.SUISEI,LiverRepo.MATSURI,LiverRepo.KAGURA_MEA,
                     LiverRepo.KIRYUU_COCO,LiverRepo.HIMEMORI_LUNA, LiverRepo.AMANE_KANATA,
-                    LiverRepo.HOLOLIVE
+                    HOUSHOU_MARINE,LiverRepo.HOLOLIVE
             };
 
     public static void getLivers(LiverCallback callback){

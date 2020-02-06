@@ -19,6 +19,9 @@ public class LiverRepo {
     //兔子
     public static final String USADA_PEKORA = "21560356";
 
+    //船长
+    public static final String HOUSHOU_MARINE = "21584153";
+
     // Uruha Rushia 绿粽子
     public static final String URUHA_RUSHIA = "21545232";
 
