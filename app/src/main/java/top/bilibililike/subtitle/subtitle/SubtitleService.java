@@ -42,9 +42,9 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+
+        IntentFilter filter = new IntentFilter("android.intent.action.CONFIGURATION_CHANGED");
         ConfigurationReceiver receiver = new ConfigurationReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("android.intent.action.CONFIGURATION_CHANGED");
         registerReceiver(receiver, filter);
         receiver.bindListener(this);
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -73,9 +73,9 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
         if (dataThread == null){
             return;
         }
-        if (subtitleView.isShown()){
+/*        if (subtitleView.isShown()){
             windowManager.removeViewImmediate(subtitleView);
-        }
+        }*/
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
@@ -89,7 +89,13 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
         layoutParams.y = windowManager.getDefaultDisplay().getHeight() - layoutParams.height;
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         layoutParams.alpha = 0.8f;
-        windowManager.addView(subtitleView, layoutParams);
+        if (subtitleView.isShown()){
+            windowManager.updateViewLayout(subtitleView,layoutParams);
+        }else {
+            if (!subtitleView.isAttachedToWindow()){
+                windowManager.addView(subtitleView, layoutParams);
+            }
+        }
         Log.d(TAG,"90度/270度width = " + layoutParams.width + "\theight = " + layoutParams.height);
     }
 
@@ -100,9 +106,9 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
         if (dataThread == null){
             return;
         }
-        if (subtitleView.isShown()){
+ /*       if (subtitleView.isShown()){
             windowManager.removeViewImmediate(subtitleView);
-        }
+        }*/
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
@@ -116,7 +122,14 @@ public class SubtitleService extends Service implements DanmakuCallBack,Configur
         layoutParams.y = windowManager.getDefaultDisplay().getHeight() - layoutParams.height;
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         layoutParams.alpha = 0.8f;
-        windowManager.addView(subtitleView, layoutParams);
+        if (subtitleView.isShown()){
+            windowManager.updateViewLayout(subtitleView,layoutParams);
+        }else {
+            if (!subtitleView.isAttachedToWindow()){
+                windowManager.addView(subtitleView, layoutParams);
+            }
+        }
+
         Log.d(TAG,"0度/180度width = " + layoutParams.width + "\theight = " + layoutParams.height);
     }
 
