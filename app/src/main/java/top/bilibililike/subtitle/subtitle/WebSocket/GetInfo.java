@@ -20,6 +20,7 @@ public class GetInfo {
     private final int PROTOCOL_VERSION = 1;
     public final int RECEIVE_BUFFER_SIZE = 10 * 1024;
     private Disposable disposable;
+    private String room = "";
 
     public boolean sendSocketData(Socket socket, int total_len, int head_len, int version, int action, int param5, byte[] data){
         try {
@@ -52,6 +53,7 @@ public class GetInfo {
     }
 
     public Socket connect(String roomId){
+        this.room = roomId;
         String socketServerUrl = "broadcastlv.chat.bilibili.com";
         final Socket socket  = new Socket();
         InetSocketAddress address = new InetSocketAddress(socketServerUrl, DEFAULT_COMMENT_PORT);
@@ -59,19 +61,14 @@ public class GetInfo {
             socket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
             socket.connect(address);
             if(sendJoinRoomMsg(socket, roomId)){
-                Observable observable = Observable.interval(600, TimeUnit.MILLISECONDS)
+                Observable observable = Observable.interval(1000, TimeUnit.MILLISECONDS)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io())
                         .doOnNext(aLong -> {
                             sendSocketData(socket, 16, 16, PROTOCOL_VERSION, 2, 1, null);
                             System.out.println("TAG弹幕 sendHeartBeat");
                         })
-                        .doOnDispose(new Action() {
-                            @Override
-                            public void run() throws Exception {
-                                System.out.println("TAG弹幕  onDispose");
-                            }
-                        })
+                        .doOnDispose(() -> System.out.println("TAG弹幕  onDispose"))
                         .doOnError(Throwable::printStackTrace)
                         ;
 
@@ -82,6 +79,10 @@ public class GetInfo {
             ex.printStackTrace();
         }
         return socket;
+    }
+
+    public Socket reConnect(){
+        return connect(this.room);
     }
 
     public void stopHeartbeat(){

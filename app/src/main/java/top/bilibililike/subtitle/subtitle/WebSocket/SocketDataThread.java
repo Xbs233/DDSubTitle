@@ -12,9 +12,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.Buffer;
 
 public class SocketDataThread implements Runnable {
+    private static final String TAG = SocketDataThread.class.getSimpleName();
     private Socket socket;
     private String roomId;
     private GetInfo client;
@@ -70,7 +72,16 @@ public class SocketDataThread implements Runnable {
                             System.arraycopy(ret, 0, recvData, 0, retLength);
                             analyzeData(recvData);
                         }
-                    } catch (Exception e) {
+                    } catch (SocketException e) {
+                        client.stopHeartbeat();
+                        try {
+                            socket.close();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                        socket = client.reConnect();
+                            Log.d(TAG,"Socket Reconnected");
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
@@ -141,6 +152,11 @@ public class SocketDataThread implements Runnable {
 
     public void stop(){
         keepRunning = false;
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         socket = null;
         client.stopHeartbeat();
         client = null;
