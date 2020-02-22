@@ -5,9 +5,14 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.Socket;
+import java.nio.Buffer;
 
 public class SocketDataThread implements Runnable {
     private Socket socket;
@@ -40,16 +45,16 @@ public class SocketDataThread implements Runnable {
     }
 
     private class HandleDataThread extends Thread {
-        DataInputStream input = null;
+        BufferedInputStream input = null;
 
         @Override
         public void run() {
             super.run();
             if (socket != null) {
-                int bufferSize = 100 * 1024;
+                int bufferSize = 10 * 1024;
                 try {
                     bufferSize = socket.getReceiveBufferSize();
-                    System.out.println("连接成功" + "真实直播间ID：" + roomId);
+                    System.out.println("连接成功" + "bufferSize" + bufferSize);
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -57,7 +62,8 @@ public class SocketDataThread implements Runnable {
                 byte[] ret = new byte[bufferSize];
                 while (keepRunning) {
                     try {
-                        input = new DataInputStream(socket.getInputStream());
+                        input = new BufferedInputStream(socket.getInputStream());
+
                         int retLength = input.read(ret);
                         if (retLength > 0 && keepRunning) {
                             byte[] recvData = new byte[retLength];
@@ -69,6 +75,7 @@ public class SocketDataThread implements Runnable {
                     }
                 }
             }
+
         }
 
         private void analyzeData(byte[] data) {
@@ -109,12 +116,6 @@ public class SocketDataThread implements Runnable {
                                     if (danMuData.matches("(.*)(【.*】)(.*)")) {
                                         danMuData = danMuData.replaceFirst("【","").replace("】","");
                                         StringBuilder builder = new StringBuilder(danMuData);
-                                       /* if (danMuData.startsWith("【") || danMuData.startsWith("（")) {
-                                            builder.deleteCharAt(0);
-                                        }
-                                        if (danMuData.endsWith("】") || danMuData.endsWith("）")){
-                                            builder.deleteCharAt(builder.length() - 1);
-                                        }*/
                                         callBack.onShow(builder.toString());
                                         Log.d("Subtitle",builder.toString());
                                     }
@@ -141,6 +142,7 @@ public class SocketDataThread implements Runnable {
     public void stop(){
         keepRunning = false;
         socket = null;
+        client.stopHeartbeat();
         client = null;
     }
 }

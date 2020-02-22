@@ -4,6 +4,17 @@ package top.bilibililike.subtitle.utils;
  * @author Xbs
  */
 public class LiverRepo {
+    private static final String[] ROOM_ID = new String[]
+            {LiverRepo.MINATO_AQUA, LiverRepo.USADA_PEKORA, LiverRepo.URUHA_RUSHIA,LiverRepo.MONOBADA_ALICE,
+                    LiverRepo.SUISEI, LiverRepo.MATSURI, LiverRepo.KAGURA_MEA,
+                    LiverRepo.KIRYUU_COCO, LiverRepo.HIMEMORI_LUNA, LiverRepo.AMANE_KANATA,LiverRepo.OKAYU,
+                    LiverRepo.HOUSHOU_MARINE, LiverRepo.HOLOLIVE,LiverRepo.OVERIDEA
+            };
+
+    public static String[] getLiverRooms(){
+        return ROOM_ID;
+    }
+
     //大亏哥
     public static final String MINATO_AQUA = "14917277";
 
@@ -25,6 +36,9 @@ public class LiverRepo {
     // Uruha Rushia 绿粽子
     public static final String URUHA_RUSHIA = "21545232";
 
+    //清楚JS Alice 可能打错了，但是不管了。。。
+    public static final String MONOBADA_ALICE = "21449083";
+
     public static final String KAGURA_MEA = "12235923";
 
     //Amane Kanata 天哥（索兰！索兰！）
@@ -36,10 +50,14 @@ public class LiverRepo {
     //空妈
     public static final String SORA = "3194280";
 
+    //大脸猫
+    public static final String OKAYU = "21420932";
+
     //Himemori Luna 0岁四期生
     public static final String HIMEMORI_LUNA = "21752719";
 
-
+    //锤子 谢拉 米亚
+    public static final String OVERIDEA = "704808";
 
 
 

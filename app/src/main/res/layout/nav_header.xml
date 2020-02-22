@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:fitsSystemWindows="true"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <de.hdodenhof.circleimageview.CircleImageView
+
+        android:layout_marginTop="@dimen/qb_px_16"
+        android:id="@+id/avatarView"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/qb_px_96"
+        android:src="@mipmap/aqua_angle"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="暂未开放(在做了)"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/qb_px_16"
+        android:textSize="22sp"
+        />
+
+</LinearLayout>

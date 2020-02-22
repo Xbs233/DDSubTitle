@@ -1,7 +1,6 @@
 package top.bilibililike.subtitle.roomInfo;
 
 import android.util.Log;
-import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +19,6 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import top.bilibililike.subtitle.utils.LiverRepo;
 
-import static top.bilibililike.subtitle.utils.LiverRepo.HOUSHOU_MARINE;
-
 /**
  * @author Xbs
  * @date 2020年1月19日14:59:27
@@ -29,23 +26,17 @@ import static top.bilibililike.subtitle.utils.LiverRepo.HOUSHOU_MARINE;
 public class RoomRepo {
     /**
      * 面包狗 21421141  aqua 14917277  星街 190577 coco 21752686  peko 21560356 狗妈 21304638 心心 14275133
-     *
      */
-    private static final String[] ROOM_ID = new String[]
-            {LiverRepo.MINATO_AQUA,LiverRepo.USADA_PEKORA,LiverRepo.URUHA_RUSHIA,
-                    LiverRepo.SUISEI,LiverRepo.MATSURI,LiverRepo.KAGURA_MEA,
-                    LiverRepo.KIRYUU_COCO,LiverRepo.HIMEMORI_LUNA, LiverRepo.AMANE_KANATA,
-                    HOUSHOU_MARINE,LiverRepo.HOLOLIVE
-            };
+    private static final String[] Liver_ROOMS = LiverRepo.getLiverRooms();
 
-    public static void getLivers(LiverCallback callback){
+    public static void getLivers(LiverCallback callback) {
         List<RepoBean.DataBean> resultList = new ArrayList<>();
         RoomIntercepter roomIntercepter = new RoomIntercepter(null);
 
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(roomIntercepter)
                 .build();
-        Retrofit retrofit =  new Retrofit.Builder()
+        Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.live.bilibili.com/")
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
@@ -54,7 +45,7 @@ public class RoomRepo {
 
         RepoService service = retrofit.create(RepoService.class);
 
-        Observable.fromArray(ROOM_ID)
+        Observable.fromArray(Liver_ROOMS)
                 .subscribeOn(Schedulers.io())
                 .flatMap(roomId -> {
                     roomIntercepter.replaceRoom(roomId);
@@ -63,7 +54,7 @@ public class RoomRepo {
                 .map(repoBean -> {
                     if (repoBean.getCode() == 0) {
                         return repoBean.getData();
-                    }else {
+                    } else {
                         Observable.error(new Throwable("sign Error"));
                         return repoBean.getData();
                     }
@@ -71,10 +62,10 @@ public class RoomRepo {
                 .retryWhen(throwableObservable -> throwableObservable
                         .flatMap((Function<Throwable, ObservableSource<?>>)
                                 throwable -> {
-                                    Log.d("RoomRepo",throwable.toString());
+                                    Log.d("RoomRepo", throwable.toString());
                                     roomIntercepter.replaceParam(null);
                                     resultList.clear();
-                                    return Observable.timer(100,TimeUnit.MILLISECONDS);
+                                    return Observable.timer(100, TimeUnit.MILLISECONDS);
                                 })
                 )
                 .observeOn(AndroidSchedulers.mainThread())
@@ -86,7 +77,7 @@ public class RoomRepo {
 
                     @Override
                     public void onNext(RepoBean.DataBean dataBean) {
-                        if (dataBean.getRoom_info().getLive_status() == 1){
+                        if (dataBean.getRoom_info().getLive_status() == 1) {
                             resultList.add(dataBean);
                         }
                     }
@@ -101,17 +92,20 @@ public class RoomRepo {
                         callback.onSuccess(resultList);
                     }
                 });
+
+
     }
 
-    public interface LiverCallback{
+    public interface LiverCallback {
         /**
          * callBack，用于获取Liver房间的回调
+         *
          * @param liverList 正在开播的Liver房间列表
          */
         void onSuccess(List<RepoBean.DataBean> liverList);
 
         void onStartLoading();
-            //todo show dialog
+        //todo show dialog
 
 
         public void onError(String reason);

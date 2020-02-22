@@ -1,14 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<androidx.drawerlayout.widget.DrawerLayout android:id="@+id/drawerLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:openDrawer="start"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+    <ImageView
+        android:layout_below="@id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/aqua_background"
+        android:contentDescription="background" />
+
+    <LinearLayout
+        android:fitsSystemWindows="true"
+        android:id="@+id/toolbar"
+        android:background="@drawable/color_gradient"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/qb_px_64"
+        android:orientation="horizontal">
+
+
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DD字幕"
+            android:layout_gravity="left|center_vertical"
+            android:textColor="#ffffff"
+            android:textSize="22sp"
+            android:layout_marginLeft="16dp"
+            />
+
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
+        tools:listitem="@layout/item_main_recycler"
+        tools:itemCount="3"
         />
 
-</RelativeLayout>
+    </RelativeLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigationView"
+        android:fitsSystemWindows="true"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:menu="@menu/menu_home_drawer"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/nav_header"
+        android:visibility="gone"
+        >
+
+    </com.google.android.material.navigation.NavigationView>
+
+</androidx.drawerlayout.widget.DrawerLayout>

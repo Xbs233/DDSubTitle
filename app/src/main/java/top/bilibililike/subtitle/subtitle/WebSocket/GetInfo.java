@@ -6,12 +6,20 @@ import java.net.Socket;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class GetInfo {
     private final int DEFAULT_COMMENT_PORT = 788;
     private final int PROTOCOL_VERSION = 1;
     public final int RECEIVE_BUFFER_SIZE = 10 * 1024;
-    private Timer heartBeattimer;
+    private Disposable disposable;
 
     public boolean sendSocketData(Socket socket, int total_len, int head_len, int version, int action, int param5, byte[] data){
         try {
@@ -43,36 +51,43 @@ public class GetInfo {
         return false;
     }
 
-    public class sendHeartbeat extends TimerTask {
-        private Socket socket;
-        public sendHeartbeat(Socket sock){
-            this.socket = sock;
-        }
-        @Override
-        public void run(){
-            if (!sendSocketData(this.socket, 16, 16, PROTOCOL_VERSION, 2, 1, null)){
-                this.cancel();
-            }
-        }
-    }
-
-    public Socket connect(String roomID){
+    public Socket connect(String roomId){
         String socketServerUrl = "broadcastlv.chat.bilibili.com";
-        Socket socket = null;
+        final Socket socket  = new Socket();
         InetSocketAddress address = new InetSocketAddress(socketServerUrl, DEFAULT_COMMENT_PORT);
         try {
-            socket = new Socket();
             socket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
             socket.connect(address);
-            if(sendJoinRoomMsg(socket, roomID)){
-                heartBeattimer = new Timer();
-                heartBeattimer.schedule(new sendHeartbeat(socket), 2000, 20000);
+            if(sendJoinRoomMsg(socket, roomId)){
+                Observable observable = Observable.interval(600, TimeUnit.MILLISECONDS)
+                        .observeOn(Schedulers.io())
+                        .subscribeOn(Schedulers.io())
+                        .doOnNext(aLong -> {
+                            sendSocketData(socket, 16, 16, PROTOCOL_VERSION, 2, 1, null);
+                            System.out.println("TAG弹幕 sendHeartBeat");
+                        })
+                        .doOnDispose(new Action() {
+                            @Override
+                            public void run() throws Exception {
+                                System.out.println("TAG弹幕  onDispose");
+                            }
+                        })
+                        .doOnError(Throwable::printStackTrace)
+                        ;
+
+                disposable = observable.subscribe();
                 return socket;
             }
         }catch (Exception ex){
             ex.printStackTrace();
         }
         return socket;
+    }
+
+    public void stopHeartbeat(){
+        if (disposable != null && !disposable.isDisposed()){
+            disposable.dispose();
+        }
     }
 
 }
