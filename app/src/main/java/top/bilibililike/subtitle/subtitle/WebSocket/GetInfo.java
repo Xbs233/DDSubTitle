@@ -59,7 +59,7 @@ public class GetInfo {
             socket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
             socket.connect(address);
             if(sendJoinRoomMsg(socket, roomId)){
-                Observable observable = Observable.interval(1000, TimeUnit.MILLISECONDS)
+                Observable observable = Observable.interval(600, TimeUnit.MILLISECONDS)
                         .observeOn(Schedulers.io())
                         .subscribeOn(Schedulers.io())
                         .doOnNext(aLong -> {

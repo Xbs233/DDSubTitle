@@ -3,6 +3,7 @@ package top.bilibililike.subtitle.subtitle;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.PixelFormat;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
@@ -126,13 +127,16 @@ public class SubtitleService extends Service implements DanmakuCallBack, Configu
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         } else {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE;
+            layoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
         }
+        //WindowManager.LayoutParams.TYPE_PHONE
+        //TYPE_APPLICATION_OVERLAY
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         layoutParams.width = windowManager.getDefaultDisplay().getWidth();
         layoutParams.height = (int) (windowManager.getDefaultDisplay().getHeight() * heightParam);
         layoutParams.height *= 1.5;
         layoutParams.gravity = Gravity.END;
+        layoutParams.format = PixelFormat.RGBA_8888;
         layoutParams.y = windowManager.getDefaultDisplay().getHeight() - layoutParams.height * 2;
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         layoutParams.alpha = 0.8f;

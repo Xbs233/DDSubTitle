@@ -7,8 +7,8 @@ public class LiverRepo {
     private static final String[] ROOM_ID = new String[]
             {LiverRepo.MINATO_AQUA, LiverRepo.USADA_PEKORA, LiverRepo.URUHA_RUSHIA,LiverRepo.MONOBADA_ALICE,
                     LiverRepo.SUISEI, LiverRepo.MATSURI, LiverRepo.KAGURA_MEA,
-                    LiverRepo.KIRYUU_COCO, LiverRepo.HIMEMORI_LUNA, LiverRepo.AMANE_KANATA,
-                    LiverRepo.HOUSHOU_MARINE, LiverRepo.HOLOLIVE,
+                    LiverRepo.KIRYUU_COCO, LiverRepo.HIMEMORI_LUNA, LiverRepo.AMANE_KANATA,LiverRepo.OKAYU,
+                    LiverRepo.HOUSHOU_MARINE, LiverRepo.HOLOLIVE,LiverRepo.OVERIDEA
             };
 
     public static String[] getLiverRooms(){
@@ -50,10 +50,14 @@ public class LiverRepo {
     //空妈
     public static final String SORA = "3194280";
 
+    //大脸猫
+    public static final String OKAYU = "21420932";
+
     //Himemori Luna 0岁四期生
     public static final String HIMEMORI_LUNA = "21752719";
 
-
+    //锤子 谢拉 米亚
+    public static final String OVERIDEA = "704808";
 
 
 

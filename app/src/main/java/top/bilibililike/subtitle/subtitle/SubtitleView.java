@@ -1,10 +1,12 @@
 package top.bilibililike.subtitle.subtitle;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.text.TextPaint;
 import android.util.AttributeSet;
@@ -30,6 +32,7 @@ public class SubtitleView extends View {
     final private TextPaint secondTextPaint;
     private long timeFlag;
     final private Paint backgroundPaint;
+    final private Paint clearPaint;
     final private StringBuilder newSubTitleStr;
     final private StringBuilder oldSubTitleStr;
 
@@ -47,6 +50,7 @@ public class SubtitleView extends View {
     final RectF firstRectF;
     final RectF secondRectF;
 
+
     private Disposable disposable;
 
     public SubtitleView(Context context, AttributeSet attrs) {
@@ -56,21 +60,26 @@ public class SubtitleView extends View {
         firstTextPaint.setAntiAlias(true);
         firstTextPaint.setTextSize(firstTextSize);
         firstTextPaint.setTextAlign(Paint.Align.CENTER);
+
         secondTextPaint = new TextPaint();
         secondTextPaint.setColor(Color.WHITE);
         secondTextPaint.setAntiAlias(true);
         secondTextPaint.setTextSize(secondTextSize);
         secondTextPaint.setTextAlign(Paint.Align.CENTER);
+
         backgroundPaint = new Paint();
         backgroundPaint.setColor(Color.parseColor("#1F0F0F"));
         backgroundPaint.setAlpha((int) (alpha * 255));
+        backgroundPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+
+        clearPaint = new Paint();
+        clearPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+
         newSubTitleStr = new StringBuilder();
         oldSubTitleStr = new StringBuilder();
         rectF = new RectF();
         firstRectF = new RectF();
         secondRectF = new RectF();
-
-
     }
 
     private void initTimeTask() {
@@ -96,13 +105,13 @@ public class SubtitleView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
         if (newSubTitleStr.length() == 0 && oldSubTitleStr.length() == 0) {
             setVisibility(View.INVISIBLE);
             return;
         }
 
         //清空canvas
+        //canvas.drawPaint(clearPaint);
         canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
         //矩形宽度计算
         final float firstRectWidth = newSubTitleStr.length() * firstTextSize;
@@ -112,13 +121,13 @@ public class SubtitleView extends View {
         final float secondTextWidth = (float) ((sumWidth - Math.pow(secondRectWidth, 0.5)) / 2);
 
         //top默认为0
-        firstRectF.left = (rectF.right - firstRectWidth) / 2 - textMarging * 4;
+        firstRectF.left = (rectF.right - firstRectWidth) / 2 - textMarging * 2;
         firstRectF.right = firstRectF.left + firstRectWidth + textMarging * 4;
         firstRectF.bottom = firstTextSize + textMarging * 2;
         canvas.drawRect(firstRectF, backgroundPaint);
 
         secondRectF.top = firstRectF.bottom;
-        secondRectF.left = (rectF.right - secondRectWidth) / 2 - textMarging * 4;
+        secondRectF.left = (rectF.right - secondRectWidth) / 2 - textMarging * 2;
         secondRectF.right = secondRectF.left + secondRectWidth + textMarging * 4;
         secondRectF.bottom = secondRectF.top + secondTextSize + textMarging * 2;
         canvas.drawRect(secondRectF, backgroundPaint);
