@@ -70,9 +70,6 @@ public class SubtitleView extends View {
         firstRectF = new RectF();
         secondRectF = new RectF();
 
-        newSubTitleStr.append(" 第一行文字要那么长一点才行吗，这会儿");
-        oldSubTitleStr.append(" 第二行文字要那么长一点才行吗，这会儿");
-
 
     }
 
@@ -88,7 +85,7 @@ public class SubtitleView extends View {
                 .doOnNext(aLong -> {
                     Log.d(TAG, "onNext timeFlag = " + timeFlag);
                     if (System.currentTimeMillis() - timeFlag > 20000) {
-                        //setVisibility(View.INVISIBLE);
+                        setVisibility(View.INVISIBLE);
                         disposable.dispose();
                     }
                 })

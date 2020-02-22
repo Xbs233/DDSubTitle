@@ -13,6 +13,7 @@
     android:focusable="true"
     android:foreground="?attr/selectableItemBackground"
     xmlns:tools="http://schemas.android.com/tools"
+    android:alpha="0.8"
     >
 
     <RelativeLayout
@@ -42,6 +43,7 @@
                 android:layout_marginStart="@dimen/qb_px_5"
                 android:drawableStart="@mipmap/ic_play_nums"
                 android:text="114万"
+                android:visibility="invisible"
                 android:drawablePadding="@dimen/qb_px_2"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
@@ -56,6 +58,7 @@
                 android:drawableLeft="@mipmap/ic_danmuku_nums"
                 android:drawablePadding="@dimen/qb_px_2"
                 android:text="7216万"
+                android:visibility="invisible"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 
@@ -67,6 +70,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="@dimen/qb_px_5"
                 android:text="5:33"
+                android:visibility="invisible"
                 android:textColor="#ffffff"
                 android:textSize="12sp" />
 

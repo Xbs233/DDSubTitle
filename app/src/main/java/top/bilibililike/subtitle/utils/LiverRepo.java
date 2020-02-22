@@ -8,7 +8,7 @@ public class LiverRepo {
             {LiverRepo.MINATO_AQUA, LiverRepo.USADA_PEKORA, LiverRepo.URUHA_RUSHIA,LiverRepo.MONOBADA_ALICE,
                     LiverRepo.SUISEI, LiverRepo.MATSURI, LiverRepo.KAGURA_MEA,
                     LiverRepo.KIRYUU_COCO, LiverRepo.HIMEMORI_LUNA, LiverRepo.AMANE_KANATA,
-                    LiverRepo.HOUSHOU_MARINE, LiverRepo.HOLOLIVE,"21564812"
+                    LiverRepo.HOUSHOU_MARINE, LiverRepo.HOLOLIVE,
             };
 
     public static String[] getLiverRooms(){
