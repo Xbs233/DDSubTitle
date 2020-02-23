@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import java.net.URISyntaxException
 import butterknife.ButterKnife
-import top.bilibililike.subtitle.roomInfo.RepoBean
+import top.bilibililike.subtitle.bean.RepoBean
 import top.bilibililike.subtitle.roomInfo.RoomInfoAdapter
 import top.bilibililike.subtitle.roomInfo.RoomRepo
 import top.bilibililike.subtitle.subtitle.SubtitleService

@@ -21,7 +21,7 @@ public class GetInfo {
     public final int RECEIVE_BUFFER_SIZE = 10 * 1024;
     private Disposable disposable;
     private String room = "";
-
+    Socket socket;
     public boolean sendSocketData(Socket socket, int total_len, int head_len, int version, int action, int param5, byte[] data){
         try {
             DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -55,7 +55,7 @@ public class GetInfo {
     public Socket connect(String roomId){
         this.room = roomId;
         String socketServerUrl = "broadcastlv.chat.bilibili.com";
-        final Socket socket  = new Socket();
+        socket  = new Socket();
         InetSocketAddress address = new InetSocketAddress(socketServerUrl, DEFAULT_COMMENT_PORT);
         try {
             socket.setReceiveBufferSize(RECEIVE_BUFFER_SIZE);
@@ -69,7 +69,12 @@ public class GetInfo {
                             System.out.println("TAG弹幕 sendHeartBeat");
                         })
                         .doOnDispose(() -> System.out.println("TAG弹幕  onDispose"))
-                        .doOnError(Throwable::printStackTrace)
+                        .doOnError(throwable -> {
+                            if (throwable.getMessage().contains("SocketException")){
+                                socket.close();
+                                socket = reConnect();
+                            }
+                        })
                         ;
 
                 disposable = observable.subscribe();

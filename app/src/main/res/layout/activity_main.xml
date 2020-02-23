@@ -59,7 +59,7 @@
         app:menu="@menu/menu_home_drawer"
         android:layout_gravity="start"
         app:headerLayout="@layout/nav_header"
-        android:visibility="gone"
+        tools:visibility="gone"
         >
 
     </com.google.android.material.navigation.NavigationView>

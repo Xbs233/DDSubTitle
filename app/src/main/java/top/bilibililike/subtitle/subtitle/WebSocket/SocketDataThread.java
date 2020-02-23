@@ -22,7 +22,7 @@ public class SocketDataThread implements Runnable {
     private GetInfo client;
     private boolean keepRunning = true;
     private DanmakuCallBack callBack;
-
+    private byte[] cacheBytes;
     public void start(String roomId) {
         this.roomId = roomId;
         client = new GetInfo();
@@ -61,15 +61,15 @@ public class SocketDataThread implements Runnable {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-                byte[] ret = new byte[bufferSize];
+                cacheBytes = new byte[bufferSize];
                 while (keepRunning) {
                     try {
                         input = new BufferedInputStream(socket.getInputStream());
 
-                        int retLength = input.read(ret);
+                        int retLength = input.read(cacheBytes);
                         if (retLength > 0 && keepRunning) {
                             byte[] recvData = new byte[retLength];
-                            System.arraycopy(ret, 0, recvData, 0, retLength);
+                            System.arraycopy(cacheBytes, 0, recvData, 0, retLength);
                             analyzeData(recvData);
                         }
                     } catch (SocketException e) {
@@ -99,7 +99,9 @@ public class SocketDataThread implements Runnable {
                 try {
                     int msgLength = inputStream.readInt();
                     if (msgLength < 16) {
-                        System.out.println("可能需要扩大缓冲区大小");
+                        cacheBytes = new byte[cacheBytes.length*2];
+                        System.out.println("缓冲区扩大，现在是"+cacheBytes.length);
+
                     } else if (msgLength > 16 && msgLength == dataLength) {
                         // 其实是两个char
                         inputStream.readInt();

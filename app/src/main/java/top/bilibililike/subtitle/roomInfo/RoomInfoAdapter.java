@@ -16,6 +16,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import top.bilibililike.subtitle.R;
+import top.bilibililike.subtitle.bean.RepoBean;
 
 /**
  * @author Xbs
@@ -56,7 +57,7 @@ public class RoomInfoAdapter extends RecyclerView.Adapter<RoomInfoAdapter.ViewHo
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.cover_img)
+        @BindView(R.id.coverImg)
         ImageView coverImg;
         @BindView(R.id.tv_plays)
         TextView tvPlays;

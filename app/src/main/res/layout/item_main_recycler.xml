@@ -22,7 +22,7 @@
 
 
         <ImageView
-            android:id="@+id/cover_img"
+            android:id="@+id/coverImg"
             android:layout_width="match_parent"
             android:layout_height="@dimen/qb_px_110"
             android:layout_alignParentTop="true"
@@ -33,7 +33,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/qb_px_50"
-            android:layout_alignBottom="@+id/cover_img">
+            android:layout_alignBottom="@+id/coverImg">
 
             <TextView
                 android:id="@+id/tv_plays"
@@ -80,7 +80,7 @@
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/cover_img"
+            android:layout_below="@id/coverImg"
             android:ellipsize="end"
             android:maxLines="2"
             android:paddingStart="@dimen/qb_px_10"
